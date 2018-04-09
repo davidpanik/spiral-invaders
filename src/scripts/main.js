@@ -4,7 +4,12 @@
 
 import Phaser from './vendor/phaser.min';
 
-var cursors, ship;
+let cursors, ship;
+let missiles = {
+	canFire: true,
+	delay: 500,
+	timer: null
+};
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -47,7 +52,18 @@ const config = {
 			} else {
 				ship.setVelocityX(0);
 			}
+
+			if (cursors.space.isDown) {
+				if (missiles.canFire) {
+					console.log('pew');
+					missiles.canFire = false;
+					missiles.timer = setTimeout(() => {
+						missiles.canFire = true;
+					}, missiles.delay);
+				}
+			}
 		}
 	}
 };
+
 const game = new Phaser.Game(config);
