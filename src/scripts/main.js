@@ -21,14 +21,21 @@ const config = {
 	scene: {
 		preload: function() {
 			this.load.image('space', './images/space.png');
-			this.load.image('ship', './images/ship.png');
+			this.load.spritesheet('ship', './images/ship.png', { frameWidth: 32, frameHeight: 44 });
 		},
 		create: function () {
 			this.add.image(WIDTH / 2, HEIGHT / 2, 'space');
 
-			ship = this.physics.add.image(400, 550, 'ship');
+			ship = this.physics.add.sprite(400, 550, 'ship');
+			this.anims.create({
+				key: 'animate',
+				frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 1 }),
+				frameRate: 10,
+				repeat: -1
+			});
 
 			ship.setCollideWorldBounds(true);
+			ship.anims.play('animate');
 
 			cursors = this.input.keyboard.createCursorKeys();
 		},
