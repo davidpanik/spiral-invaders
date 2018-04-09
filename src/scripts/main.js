@@ -4,41 +4,42 @@
 
 import Phaser from './vendor/phaser.min';
 
+var cursors, ship;
+
+const WIDTH = 800;
+const HEIGHT = 600;
+
 const config = {
-	width: 800,
-	height: 600,
+	width: WIDTH,
+	height: HEIGHT,
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 }
+			// gravity: { y: 100 }
 		}
 	},
 	scene: {
 		preload: function() {
-			this.load.setBaseURL('http://labs.phaser.io');
-
-			this.load.image('sky', 'assets/skies/space3.png');
-			this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-			this.load.image('red', 'assets/particles/red.png');
+			this.load.image('space', './images/space.png');
+			this.load.image('ship', './images/ship.png');
 		},
 		create: function () {
-			this.add.image(400, 300, 'sky');
+			this.add.image(WIDTH / 2, HEIGHT / 2, 'space');
 
-			var particles = this.add.particles('red');
+			ship = this.physics.add.image(400, 550, 'ship');
 
-			var emitter = particles.createEmitter({
-				speed: 100,
-				scale: { start: 1, end: 0 },
-				blendMode: 'ADD'
-			});
+			ship.setCollideWorldBounds(true);
 
-			var logo = this.physics.add.image(400, 100, 'logo');
-
-			logo.setVelocity(100, 200);
-			logo.setBounce(1, 1);
-			logo.setCollideWorldBounds(true);
-
-			emitter.startFollow(logo);
+			cursors = this.input.keyboard.createCursorKeys();
+		},
+		update: function() {
+			if (cursors.left.isDown) {
+				ship.setVelocityX(-160);
+			} else if (cursors.right.isDown) {
+				ship.setVelocityX(160);
+			} else {
+				ship.setVelocityX(0);
+			}
 		}
 	}
 };
