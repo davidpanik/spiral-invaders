@@ -27,20 +27,27 @@ const config = {
 		preload: function() {
 			this.load.image('space', './images/space.png');
 			this.load.spritesheet('ship', './images/ship.png', { frameWidth: 32, frameHeight: 44 });
+			this.load.spritesheet('missile', './images/missile.png', { frameWidth: 8, frameHeight: 19 });
 		},
 		create: function () {
 			this.add.image(WIDTH / 2, HEIGHT / 2, 'space');
 
 			ship = this.physics.add.sprite(400, 550, 'ship');
 			this.anims.create({
-				key: 'animate',
+				key: 'ship-animate',
 				frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 1 }),
+				frameRate: 10,
+				repeat: -1
+			});
+			this.anims.create({
+				key: 'missile-animate',
+				frames: this.anims.generateFrameNumbers('missile', { start: 0, end: 1 }),
 				frameRate: 10,
 				repeat: -1
 			});
 
 			ship.setCollideWorldBounds(true);
-			ship.anims.play('animate');
+			ship.anims.play('ship-animate');
 
 			cursors = this.input.keyboard.createCursorKeys();
 		},
@@ -55,7 +62,10 @@ const config = {
 
 			if (cursors.space.isDown) {
 				if (missiles.canFire) {
-					console.log('pew');
+					var missile = this.physics.add.sprite(ship.x, ship.y, 'missile');
+					missile.anims.play('missile-animate');
+					missile.setVelocityY(-200);
+					
 					missiles.canFire = false;
 					missiles.timer = setTimeout(() => {
 						missiles.canFire = true;
