@@ -5,7 +5,7 @@
 import Phaser from './vendor/phaser.min';
 
 let cursors, ship;
-let missiles = {
+const missiles = {
 	canFire: true,
 	delay: 500,
 	timer: null
@@ -34,36 +34,52 @@ const config = {
 
 			ship = this.physics.add.sprite(400, 550, 'ship');
 			this.anims.create({
-				key: 'ship-animate',
+				key: 'ship-default',
 				frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 1 }),
 				frameRate: 10,
 				repeat: -1
 			});
 			this.anims.create({
-				key: 'missile-animate',
+				key: 'ship-left',
+				frames: this.anims.generateFrameNumbers('ship', { start: 2, end: 3 }),
+				frameRate: 10,
+				repeat: -1
+			});
+			this.anims.create({
+				key: 'ship-right',
+				frames: this.anims.generateFrameNumbers('ship', { start: 4, end: 5 }),
+				frameRate: 10,
+				repeat: -1
+			});
+			this.anims.create({
+				key: 'missile-default',
 				frames: this.anims.generateFrameNumbers('missile', { start: 0, end: 1 }),
 				frameRate: 10,
 				repeat: -1
 			});
 
 			ship.setCollideWorldBounds(true);
-			ship.anims.play('ship-animate');
+			ship.depth = 10;
+			ship.anims.play('ship-default');
 
 			cursors = this.input.keyboard.createCursorKeys();
 		},
 		update: function() {
 			if (cursors.left.isDown) {
 				ship.setVelocityX(-160);
+				ship.anims.play('ship-left', true);
 			} else if (cursors.right.isDown) {
 				ship.setVelocityX(160);
+				ship.anims.play('ship-right', true);
 			} else {
 				ship.setVelocityX(0);
+				ship.anims.play('ship-default', true);
 			}
 
 			if (cursors.space.isDown) {
 				if (missiles.canFire) {
-					var missile = this.physics.add.sprite(ship.x, ship.y, 'missile');
-					missile.anims.play('missile-animate');
+					let missile = this.physics.add.sprite(ship.x, ship.y, 'missile');
+					missile.anims.play('missile-default');
 					missile.setVelocityY(-200);
 					
 					missiles.canFire = false;
