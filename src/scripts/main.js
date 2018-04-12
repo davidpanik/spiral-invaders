@@ -4,7 +4,7 @@
 
 import Phaser from './vendor/phaser.min';
 
-let cursors, ship, alien;
+let cursors, ship, alien, background;
 const missiles = {
 	canFire: true,
 	delay: 500,
@@ -31,7 +31,7 @@ const config = {
 			this.load.spritesheet('missile', './images/missile.png', { frameWidth: 8, frameHeight: 19 });
 		},
 		create: function () {
-			this.add.image(WIDTH / 2, HEIGHT / 2, 'space');
+			background = this.add.tileSprite(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 'space');
 
 			ship = this.physics.add.sprite(WIDTH / 2, HEIGHT - 50, 'ship');
 			alien = this.physics.add.sprite(WIDTH / 2, HEIGHT / 2, 'alien');
@@ -94,6 +94,7 @@ const config = {
 			alien.anims.play('alien-right', true);
 
 			cursors = this.input.keyboard.createCursorKeys();
+			console.log(background);
 		},
 		update: function() {
 			if (cursors.left.isDown) {
@@ -125,6 +126,9 @@ const config = {
 					}, missiles.delay);
 				}
 			}
+
+			background.tilePositionX -= 0.1;
+			background.tilePositionY -= 0.2;
 		}
 	}
 };
