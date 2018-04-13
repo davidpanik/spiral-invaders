@@ -4,12 +4,55 @@
 
 import Phaser from './vendor/phaser.min';
 
-let cursors, ship, alien, background, enemies, missiles;
-const missileConfig = {
+let cursors, ship, background, groupAliens, groupMissiles;
+
+const cannon = {
 	canFire: true,
 	delay: 500,
-	timer: null
+	timer: null,
+	fire: function(scope) {
+		if (cannon.canFire) {
+			let missile = scope.physics.add.sprite(ship.x, ship.y, 'missile');
+			groupMissiles.add(missile);
+			missile.anims.play('missile-default');
+			missile.setVelocityY(-200);
+
+			setTimeout(() => {
+				if (missile.body && missile.body.checkWorldBounds()) {
+					missile.destroy();
+				}
+			}, 4000);
+
+			this.canFire = false;
+			this.timer = setTimeout(() => {
+				this.canFire = true;
+			}, this.delay);
+		}
+	}
 };
+
+const controls = {
+	cursors: null,
+	create: function(scope) {
+		this.cursors = scope.input.keyboard.createCursorKeys();
+	},
+	update: function (scope) {
+		if (this.cursors.left.isDown) {
+			ship.setVelocityX(-160);
+			ship.anims.play('ship-left', true);
+		} else if (this.cursors.right.isDown) {
+			ship.setVelocityX(160);
+			ship.anims.play('ship-right', true);
+		} else {
+			ship.setVelocityX(0);
+			ship.anims.play('ship-default', true);
+		}
+
+		if (this.cursors.space.isDown) {
+			cannon.fire(scope);
+		}
+	}
+}
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -32,68 +75,23 @@ const config = {
 			this.load.spritesheet('explosion', './images/explosion.png', { frameWidth: 32, frameHeight: 32 });
 		},
 		create: function () {
-			background = this.add.tileSprite(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 'space');
-			enemies = this.physics.add.group();
-			missiles = this.physics.add.group();
-			ship = this.physics.add.sprite(WIDTH / 2, HEIGHT - 50, 'ship');
-			alien = this.physics.add.sprite(WIDTH / 2, HEIGHT / 2, 'alien');
-			enemies.add(alien);
-
 			createAnimations(this);
 
-			ship.setCollideWorldBounds(true);
-			ship.depth = 10;
-			ship.anims.play('ship-default');
+			background = this.add.tileSprite(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 'space');
 
-			alien.anims.play('alien-default');
-			alien.depth = 20;
-			alien.angle = 180;
-			alien.setVelocityX(-80);
-			alien.setCollideWorldBounds(true);
-			alien.anims.play('alien-right', true);
+			groupAliens = this.physics.add.group();
+			groupMissiles = this.physics.add.group();
 
-			this.physics.add.overlap(ship, enemies, () => {
-				ship.destroy();
-			}, null, this);
+			createShip(this);
 
-			this.physics.add.overlap(missiles, enemies, (missile, enemy) => {
-				missile.destroy();
-				enemy.destroy();
-			}, null, this);
+			createAlien(this);
 
-			cursors = this.input.keyboard.createCursorKeys();
+			createCollisions(this);
+
+			controls.create(this);
 		},
 		update: function() {
-			if (cursors.left.isDown) {
-				ship.setVelocityX(-160);
-				ship.anims.play('ship-left', true);
-			} else if (cursors.right.isDown) {
-				ship.setVelocityX(160);
-				ship.anims.play('ship-right', true);
-			} else {
-				ship.setVelocityX(0);
-				ship.anims.play('ship-default', true);
-			}
-
-			if (cursors.space.isDown) {
-				if (missileConfig.canFire) {
-					let missile = this.physics.add.sprite(ship.x, ship.y, 'missile');
-					missiles.add(missile);
-					missile.anims.play('missile-default');
-					missile.setVelocityY(-200);
-
-					setTimeout(() => {
-						if (missile.body && missile.body.checkWorldBounds()) {
-							missile.destroy();
-						}
-					}, 4000);
-					
-					missileConfig.canFire = false;
-					missileConfig.timer = setTimeout(() => {
-						missileConfig.canFire = true;
-					}, missileConfig.delay);
-				}
-			}
+			controls.update(this);
 
 			background.tilePositionX -= 0.1;
 			background.tilePositionY -= 0.2;
@@ -102,6 +100,35 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+function createShip(scope) {
+	ship = scope.physics.add.sprite(WIDTH / 2, HEIGHT - 50, 'ship');
+	ship.setCollideWorldBounds(true);
+	ship.depth = 10;
+	ship.anims.play('ship-default');
+}
+
+function createAlien(scope) {
+	let alien = scope.physics.add.sprite(WIDTH / 2, HEIGHT / 2, 'alien');
+	groupAliens.add(alien);
+	alien.anims.play('alien-default');
+	alien.depth = 20;
+	alien.angle = 180;
+	alien.setVelocityX(-80);
+	alien.setCollideWorldBounds(true);
+	alien.anims.play('alien-right', true);
+}
+
+function createCollisions(scope) {
+	scope.physics.add.overlap(ship, groupAliens, () => {
+		ship.destroy();
+	}, null, scope);
+
+	scope.physics.add.overlap(groupMissiles, groupAliens, (missile, enemy) => {
+		missile.destroy();
+		enemy.destroy();
+	}, null, scope);
+}
 
 function createAnimations(scope) {
 	scope.anims.create({
