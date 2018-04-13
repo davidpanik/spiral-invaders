@@ -114,9 +114,15 @@ function createAlien(scope) {
 	alien.anims.play('alien-default');
 	alien.depth = 20;
 	alien.angle = 180;
-	alien.setVelocityX(-80);
 	alien.setCollideWorldBounds(true);
-	alien.anims.play('alien-right', true);
+
+	if (random(2) === 1) {
+		alien.setVelocityX(-80);
+		alien.anims.play('alien-right', true);		
+	} else {
+		alien.setVelocityX(80);
+		alien.anims.play('alien-left', true);
+	}
 }
 
 function createCollisions(scope) {
@@ -131,52 +137,25 @@ function createCollisions(scope) {
 }
 
 function createAnimations(scope) {
-	scope.anims.create({
-		key: 'ship-default',
-		frames: scope.anims.generateFrameNumbers('ship', { start: 0, end: 1 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'ship-left',
-		frames: scope.anims.generateFrameNumbers('ship', { start: 2, end: 3 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'ship-right',
-		frames: scope.anims.generateFrameNumbers('ship', { start: 4, end: 5 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'alien-default',
-		frames: scope.anims.generateFrameNumbers('alien', { start: 0, end: 1 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'alien-left',
-		frames: scope.anims.generateFrameNumbers('alien', { start: 2, end: 3 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'alien-right',
-		frames: scope.anims.generateFrameNumbers('alien', { start: 4, end: 5 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'missile-default',
-		frames: scope.anims.generateFrameNumbers('missile', { start: 0, end: 1 }),
-		frameRate: 10,
-		repeat: -1
-	});
-	scope.anims.create({
-		key: 'explosion-default',
-		frames: scope.anims.generateFrameNumbers('explosion', { start: 0, end: 5 }),
-		frameRate: 30,
-		repeat: 0
-	});
+	function create(name, sprite, start, end, repeat = -1, frameRate = 10) {
+		scope.anims.create({
+			key: name,
+			frames: scope.anims.generateFrameNumbers(sprite, { start: start, end: end }),
+			frameRate: frameRate,
+			repeat: repeat
+		});
+	}
+
+	create('ship-default', 'ship', 0, 1);
+	create('ship-left', 'ship', 2, 3);
+	create('ship-right', 'ship', 4, 5);
+	create('alien-default', 'alien', 0, 1);
+	create('alien-left', 'alien', 2, 3);
+	create('alien-right', 'alien', 4, 5);
+	create('missile-default', 'missile', 0, 1);
+	create('explosion-default', 'explosion', 0, 5, 30, 0);
+}
+
+function random(max) {
+	return (Math.floor(Math.random() * max));
 }
