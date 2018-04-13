@@ -4,7 +4,7 @@
 
 import Phaser from './vendor/phaser.min';
 
-let cursors, ship, background, groupAliens, groupMissiles;
+let cursors, ship, background, groupAliens, groupMissiles, groupWalls, wallLeft, wallRight, wallTop, wallBottom;
 
 const cannon = {
 	canFire: true,
@@ -16,12 +16,6 @@ const cannon = {
 			groupMissiles.add(missile);
 			missile.anims.play('missile-default');
 			missile.setVelocityY(-200);
-
-			setTimeout(() => {
-				if (missile.body && missile.body.checkWorldBounds()) {
-					missile.destroy();
-				}
-			}, 4000);
 
 			this.canFire = false;
 			this.timer = setTimeout(() => {
@@ -56,6 +50,7 @@ const controls = {
 
 const WIDTH = 800;
 const HEIGHT = 600;
+const WALLSIZE = 100;
 
 const config = {
 	width: WIDTH,
@@ -69,6 +64,7 @@ const config = {
 	scene: {
 		preload: function() {
 			this.load.image('space', './images/space.png');
+			this.load.image('transparent', './images/transparent.png');
 			this.load.spritesheet('ship', './images/ship.png', { frameWidth: 32, frameHeight: 44 });
 			this.load.spritesheet('alien', './images/alien.png', { frameWidth: 32, frameHeight: 32 });
 			this.load.spritesheet('missile', './images/missile.png', { frameWidth: 8, frameHeight: 19 });
@@ -77,10 +73,22 @@ const config = {
 		create: function () {
 			createAnimations(this);
 
-			background = this.add.tileSprite(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 'space');
-
 			groupAliens = this.physics.add.group();
 			groupMissiles = this.physics.add.group();
+			groupWalls = this.physics.add.group();
+
+			background = this.add.tileSprite(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 'space');
+
+			wallLeft = this.add.tileSprite(0 - (WALLSIZE / 2), HEIGHT / 2, WALLSIZE, HEIGHT + (WALLSIZE * 2), 'transparent');
+			wallRight = this.add.tileSprite(WIDTH + (WALLSIZE / 2), HEIGHT / 2, WALLSIZE, HEIGHT + (WALLSIZE * 2), 'transparent');
+
+			wallTop = this.add.tileSprite(WIDTH / 2, 0 - (WALLSIZE / 2), WIDTH + (WALLSIZE * 2), WALLSIZE, 'transparent');
+			wallBottom = this.add.tileSprite(WIDTH / 2, HEIGHT + (WALLSIZE / 2), WIDTH + (WALLSIZE * 2), WALLSIZE, 'transparent');
+
+			groupWalls.add(wallLeft);
+			groupWalls.add(wallRight);
+			groupWalls.add(wallTop);
+			groupWalls.add(wallBottom);
 
 			createShip(this);
 
@@ -133,6 +141,10 @@ function createCollisions(scope) {
 	scope.physics.add.overlap(groupMissiles, groupAliens, (missile, enemy) => {
 		missile.destroy();
 		enemy.destroy();
+	}, null, scope);
+
+	scope.physics.add.overlap(groupMissiles, groupWalls, (missile, wall) => {
+			missile.destroy();
 	}, null, scope);
 }
 
