@@ -122,7 +122,7 @@ function createAlien(scope) {
 	alien.anims.play('alien-default');
 	alien.depth = 20;
 	alien.angle = 180;
-	alien.setCollideWorldBounds(true);
+	// alien.setCollideWorldBounds(true);
 
 	if (random(2) === 1) {
 		alien.setVelocityX(-80);
@@ -138,13 +138,29 @@ function createCollisions(scope) {
 		ship.destroy();
 	}, null, scope);
 
-	scope.physics.add.overlap(groupMissiles, groupAliens, (missile, enemy) => {
+	scope.physics.add.overlap(groupMissiles, groupAliens, (missile, alien) => {
 		missile.destroy();
-		enemy.destroy();
+		alien.destroy();
 	}, null, scope);
 
 	scope.physics.add.overlap(groupMissiles, groupWalls, (missile, wall) => {
-			missile.destroy();
+		missile.destroy();
+	}, null, scope);
+
+	scope.physics.add.overlap(groupAliens, wallLeft, (wall, alien) => {
+		alien.setVelocityX(80);
+		alien.y += 10;
+		alien.anims.play('alien-left', true);
+	}, null, scope);
+
+	scope.physics.add.overlap(groupAliens, wallRight, (wall, alien) => {
+		alien.setVelocityX(-80);
+		alien.y += 10;
+		alien.anims.play('alien-right', true);
+	}, null, scope);
+
+	scope.physics.add.overlap(groupAliens, wallBottom, (wall, alien) => {
+		alert('GAME OVER');
 	}, null, scope);
 }
 
